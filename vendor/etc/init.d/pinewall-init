@@ -1,0 +1,41 @@
+#!/sbin/openrc-run
+# shellcheck shell=sh
+
+description="Daemon to read config from EFI vars and write it to disk"
+
+start() {
+    ebegin "Reading EFI var and writing config"
+
+    # Unpack overlay over the top of the filesystem
+    # (First 4 bytes of an efivars file are the attribute flags; skip them)
+    tail -c +5 "/sys/firmware/efi/efivars/overlay-00000000-0000-0000-0000-000000000000" | tar -xzf - -C /
+
+    # Enable services based on the comma separated values injected via services EFI var
+    #
+    # This only works because pinewall-init runs as part of the `boot` runlevel, before
+    # we hit the `default` runlevel which is where all of these services are getting enabled
+    SERVICES="$(strings /sys/firmware/efi/efivars/services-00000000-0000-0000-0000-000000000000)"
+    for svc in ${SERVICES//,/ } ; do
+        rc-update add "$svc" default
+    done
+
+    # close the ebegin
+    eend $?
+}
+
+stop() {
+    echo 'noop'
+}
+
+# Run after localmount so our efivarfs is ready. We need
+# to schedule this as part of the boot runlevel.
+#
+# Run before hostname and networking services so we can
+# set the hostname and configure networking using injected
+# vars.
+depend() {
+        after localmount
+        before hostname
+        before networking
+        before nftables
+}
