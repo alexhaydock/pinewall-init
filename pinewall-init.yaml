@@ -12,6 +12,7 @@ package:
     # files for packages that we want to use instead of the vendor defaults)
     replaces:
       - 'alpine-baselayout-data'  # /etc/inittab
+environment:
   contents:
     repositories:
       - http://dl-cdn.alpinelinux.org/alpine/v3.24/main
