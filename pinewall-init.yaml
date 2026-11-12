@@ -1,15 +1,17 @@
 ---
 package:
   name: pinewall-init
-  version: "1.0.1"
+  version: "1.0.2"
   epoch: 0
   description: A very bad clone of cloud-init for init-ing Pinewall from EFI vars
   copyright:
     - license: MIT
   dependencies:
     runtime:
+    # Declare the packages that we conflict with (i.e. where we ship config
+    # files for packages that we want to use instead of the vendor defaults)
     replaces:
-environment:
+      - 'alpine-baselayout-data'  # /etc/inittab
   contents:
     repositories:
       - http://dl-cdn.alpinelinux.org/alpine/v3.24/main
