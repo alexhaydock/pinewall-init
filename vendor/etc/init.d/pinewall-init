@@ -36,6 +36,7 @@ stop() {
 depend() {
         after localmount
         before hostname
+        before modules
         before networking
         before nftables
 }
